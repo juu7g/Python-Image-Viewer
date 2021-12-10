@@ -3,17 +3,14 @@
 """
 
 import csv, itertools, re, os, sys
-from posixpath import basename, join
 import tkinter as tk
 import tkinter.ttk as ttk
 import tkinter.font as tkFont
 from tkinter import Frame, Label, PhotoImage, filedialog
 from tkinterdnd2 import *
-from typing import Tuple                # 関数アノテーション用
-from typing import List
+from typing import Tuple                # 関数アノテーション用 
 from PIL import Image, ImageTk          # Pillow
 from PIL.ExifTags import TAGS, GPSTAGS  # Exifタグ情報
-import subprocess                       # 外部プログラム起動
 
 class ListView(ttk.Frame):
     """
@@ -409,7 +406,6 @@ if __name__ == '__main__':
     root = TkinterDnD.Tk()      # トップレベルウィンドウの作成  tkinterdnd2の適用
     root.title("画像 viewer")   # タイトル
     root.geometry("800x710")    # サイズ
-    root.iconbitmap("fukuro32.ico", True)
     listview = ListView(root)   # ListViewクラスのインスタンス作成
     root.drop_target_register(DND_FILES)            # ドロップ受け取りを登録
     root.dnd_bind("<<Drop>>", listview.open_file_and_get_data)    # ドロップ後に実行するメソッドを登録
