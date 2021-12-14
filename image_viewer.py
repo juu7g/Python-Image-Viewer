@@ -2,11 +2,11 @@
 画像ビューワー
 """
 
-import csv, itertools, re, os, sys
+import itertools, os, sys
 import tkinter as tk
 import tkinter.ttk as ttk
 import tkinter.font as tkFont
-from tkinter import Frame, Label, PhotoImage, filedialog
+from tkinter import filedialog
 from tkinterdnd2 import *
 from typing import Tuple                # 関数アノテーション用 
 from PIL import Image, ImageTk          # Pillow
@@ -78,7 +78,7 @@ class ListView(ttk.Frame):
         self.btn_f_sel.pack(side=tk.RIGHT, padx=5)
         # bind
 
-    def create_tree_frame(self, parent:Frame) -> ttk.Treeview:
+    def create_tree_frame(self, parent:tk.Frame) -> ttk.Treeview:
         """
         Treeviewとスクロールバーを持つframeを作成する。
         frameは、Treeviewとスクロールバーをセットする
@@ -359,7 +359,7 @@ class ImageOp():
         msg1 = ""
         columns1 = ["ファイル名", "幅(px)", "高さ(px)", "サイズ(kB)", "画像情報 EXIF", "位置情報 GPS"]
         try:
-            self.images = []    # selfでないとうまくいかない。理由は不明
+            self.images = []    # selfでないとうまくいかない。理由はローカル変数だと関数終了後gcされるため
             rows1 = []
             for file_name in file_names:   # パス名で回す
                 # basename = os.path.basename(file_name)
