@@ -11,6 +11,7 @@ from tkinterdnd2 import *
 from typing import Tuple                # 関数アノテーション用 
 from PIL import Image, ImageTk          # Pillow
 from PIL.ExifTags import TAGS, GPSTAGS  # Exifタグ情報
+from fractions import Fraction
 
 class ListView(ttk.Frame):
     """
@@ -339,6 +340,56 @@ class ImageOp():
     """
     画像データの操作を行う
     """
+    SHOOTING_CONDITIONS = {
+        # 撮影条件に関するタグ from JEITA CP-3451C  表示したくないものはコメントにしてある
+        33434:"露出時間", #  ExposureTime
+        33437:"F ナンバー", #  FNumber
+        34850:"露出プログラム", #  ExposureProgram
+        34852:"スペクトル感度", #  SpectralSensitivity
+        34855:"撮影感度", #  PhotographicSensitivity
+        34856:"光電変換関数", #  OECF
+        34864:"感度種別", #  SensitivityType
+        34865:"標準出力感度", #  StandardOutputSensitivity
+        34866:"推奨露光指数", #  RecommendedExposureIndex
+        34867:"ISO スピード", #  ISOSpeed
+        34868:"ISO スピードラチチュード yyy", #  ISOSpeedLatitudeyyy
+        34869:"ISO スピードラチチュード zzz", #  ISOSpeedLatitudezzz
+        # 37377:"シャッタースピード", #  ShutterSpeedValue APEX値
+        # 37378:"絞り値", #  ApertureValue APEX値
+        # 37379:"輝度値", #  BrightnessValue APEX値
+        37380:"露光補正値", #  ExposureBiasValue APEX値
+        # 37381:"レンズ最小Ｆ値", #  MaxApertureValue APEX値
+        37382:"被写体距離", #  SubjectDistance
+        37383:"測光方式", #  MeteringMode
+        37384:"光源", #  LightSource
+        37385:"フラッシュ", #  Flash
+        37386:"レンズ焦点距離", #  FocalLength
+        37396:"被写体領域", #  SubjectArea
+        41483:"フラッシュ強度", #  FlashEnergy
+        41484:"空間周波数応答", #  SpatialFrequencyResponse
+        # 41486:"焦点面の幅の解像度", #  FocalPlaneXResolution
+        # 41487:"焦点面の高さの解像度", #  FocalPlaneYResolution
+        # 41488:"焦点面解像度単位", #  FocalPlaneResolutionUnit
+        41492:"被写体位置", #  SubjectLocation
+        41493:"露出インデックス", #  ExposureIndex
+        41495:"センサ方式", #  SensingMethod
+        # 41728:"ファイルソース", #  FileSource
+        41729:"シーンタイプ", #  SceneType
+        41730:"CFA パターン", #  CFAPattern
+        41985:"個別画像処理", #  CustomRendered
+        41986:"露出モード", #  ExposureMode
+        41987:"ホワイトバランス", #  WhiteBalance
+        41988:"デジタルズーム倍率", #  DigitalZoomRatio
+        41989:"35mm 換算レンズ焦点距離", #  FocalLengthIn35mmFilm
+        41990:"撮影シーンタイプ", #  SceneCaptureType
+        41991:"ゲイン制御", #  GainControl
+        41992:"撮影コントラスト", #  Contrast
+        41993:"撮影彩度", #  Saturation
+        41994:"撮影シャープネス", #  Sharpness
+        41995:"撮影条件記述情報", #  DeviceSettingDescription
+        41996:"被写体距離レンジ", #  SubjectDistanceRange 
+    }
+
     def __init__(self):
         self.msg = ""   # メッセージ受渡し用
         # 対象拡張子	辞書(key:拡張子、値:表示文字)
@@ -357,7 +408,7 @@ class ImageOp():
             msg1(str):          エラーメッセージ(空文はエラーなし)
         """
         msg1 = ""
-        columns1 = ["ファイル名", "幅(px)", "高さ(px)", "サイズ(kB)", "画像情報 EXIF", "位置情報 GPS"]
+        columns1 = ["ファイル名", "幅(px)", "高さ(px)", "サイズ(kB)", "画像情報 EXIF", "撮影条件", "位置情報 GPS"]
         try:
             self.images = []    # selfでないとうまくいかない。理由はローカル変数だと関数終了後gcされるため
             rows1 = []
@@ -371,14 +422,25 @@ class ImageOp():
                 image1 = Image.open(file_name)
                 # ファイルサイズの取得
                 image_size = image1.size
+                
                 # Exif情報の取得
                 exif_dict = image1.getexif()
                 exif = [TAGS.get(k, "Unknown")+ f": {str(v)}" for k, v in exif_dict.items()]
                 exif_str = "\n".join(exif)
+
                 # GPS情報の取得
                 gps_dict = exif_dict.get_ifd(34853)
                 gps = [GPSTAGS.get(k, "Unknown") + f": {str(v)}" for k, v in gps_dict.items()]
                 gps_str = "\n".join(gps)
+                
+                # exifプライベートタグ情報の取得
+                pvtag_dict = exif_dict.get_ifd(34665)
+                if 33434 in pvtag_dict and  pvtag_dict.get(33434) < 0.3: # シャッタースピードだけ分数に変換ただし0.3以下の時
+                    pvtag_dict[33434] = str(Fraction(pvtag_dict.get(33434)))
+                pvtag = sorted(pvtag_dict.items())  # キーでソート。結果はタプルのリスト
+                pvtag = [ImageOp.SHOOTING_CONDITIONS.get(k) + f": {str(v)}" for k, v in pvtag if k in ImageOp.SHOOTING_CONDITIONS]  # SHOOTING_CONDITIONSに存在するものだけ(撮影条件)
+                pvtag_str = "\n".join(pvtag)
+                
                 # 縮小
                 image1.thumbnail((150, 150), Image.BICUBIC)
                 # サムネイルの大きさを統一(そうしないとチェックボックスの位置がまちまちになるため)
@@ -395,7 +457,7 @@ class ImageOp():
                 # 列データと画像データを追加
                 self.images.append(image1)
                 rows1.append([wrap_file_name, image_size[0], image_size[1], 
-                                "{:.1f}".format(file_size/1024), exif_str, gps_str])
+                                "{:.1f}".format(file_size/1024), exif_str, pvtag_str, gps_str])
         except Exception as e:
             msg1 = e
             print(f"error:{e}")

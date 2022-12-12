@@ -14,8 +14,8 @@ Select image files and display the thumbnail image of the file and the file info
 	Read GIF, PNG, JPEG, WebP files and display file information on the screen  
 - 画像のサムネイルを表示  
 	Show thumbnail of image  
-- 画像の Exif 情報、GPS 情報を表示  
-	Display Exif information and GPS information of images  
+- 画像の Exif 情報、撮影条件、GPS 情報を表示  
+	Display Exif information and shooting conditions and GPS information of images  
 - チェックボックスを提供  
 	Provide checkbox  
 - ドラッグアンドドロップでファイルを指定可能(TkinterDnD2使用)
@@ -30,8 +30,8 @@ Select image files and display the thumbnail image of the file and the file info
 	Change the background color every other line  
 - 列の幅を自動調整  
 	Automatically adjust column width    
-- 行の高さを自動調整  
-	Automatically adjust row height    
+- 行の高さを一番高い行に合わせる  
+	Fit row height to tallest row    
 - 縦横スクロールバーを表示  
 	Display vertical and horizontal scroll bars   
 
@@ -86,7 +86,8 @@ Select image files and display the thumbnail image of the file and the file info
 
 ## プログラムの説明サイト Program description site
 
-[画像ビューアの作り方(Treeviewに画像と疑似チェックボックス)【Python】 - プログラムでおかえしできるかな](https://juu7g.hatenablog.com/entry/Python/image/viewer)  
+- [画像ビューアの作り方(Treeviewに画像と疑似チェックボックス)【Python】 - プログラムでおかえしできるかな](https://juu7g.hatenablog.com/entry/Python/image/viewer)  
+- [PillowでExif情報の撮影条件を取得【Python】 - プログラムでおかえしできるかな](https://juu7g.hatenablog.com/entry/Python/image/viewer-add-exif-tag)  
 
 ## 作者 Authors
 juu7g
